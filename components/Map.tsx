@@ -45,7 +45,7 @@ export default function Map() {
     };
   };
 
-  const getGeojsonStyle = (feature: any): L.PathOptions => ({
+  const getGeojsonStyle = (): L.PathOptions => ({
     fillColor: "#3b82f6",
     weight: 1,
     opacity: 0.5,
@@ -75,12 +75,12 @@ export default function Map() {
         />
         <GeoJSON 
           data={geoData as any} 
-          style={getGeojsonStyle as any}
+          style={getGeojsonStyle}
           onEachFeature={(feature, layer) => {
             layer.on({
-              mouseover: (e) => {
+              mouseover: (e: L.LeafletMouseEvent) => {
                 const target = e.target;
-                if (target.setStyle) {
+                if (target && typeof target.setStyle === 'function') {
                   target.setStyle({
                     fillOpacity: 0.4,
                     fillColor: "#60a5fa",
@@ -89,10 +89,10 @@ export default function Map() {
                   });
                 }
               },
-              mouseout: (e) => {
+              mouseout: (e: L.LeafletMouseEvent) => {
                 const target = e.target;
-                if (target.setStyle) {
-                  target.setStyle(getGeojsonStyle(feature));
+                if (target && typeof target.setStyle === 'function') {
+                  target.setStyle(getGeojsonStyle());
                 }
               },
               click: () => {
@@ -112,7 +112,6 @@ export default function Map() {
         data={selectedStats} 
       />
       
-      {/* Overlay Instructions */}
       <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-[1000] bg-slate-900/90 backdrop-blur-md border border-slate-700/50 px-4 py-2 rounded-full shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none w-max">
         <p className="text-white text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.2em] flex items-center gap-3">
           <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
