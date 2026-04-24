@@ -4,6 +4,14 @@ import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
 import { useEffect, useState } from "react";
 import StatModal from "./StatModal";
 import L from "leaflet";
+import { fetchAllSheets, SheetData } from "@/lib/googleSheets";
+
+const GIDS = {
+  main: "350773398",
+  education: "1028742401",
+  quiz: "1004678348",
+};
+
 
 interface GeoData {
   type: string;
@@ -14,13 +22,85 @@ export default function Map() {
   const [geoData, setGeoData] = useState<GeoData | null>(null);
   const [selectedStats, setSelectedStats] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [sheetsData, setSheetsData] = useState<Record<string, SheetData[]> | null>(null);
+  const [isLoadingData, setIsLoadingData] = useState(true);
+
 
   useEffect(() => {
+    // Fetch GeoJSON
     fetch("/map-data.json")
       .then((res) => res.json())
       .then((data: GeoData) => setGeoData(data))
       .catch(err => console.error("Error loading map data:", err));
+
+    // Fetch Google Sheets Data
+    fetchAllSheets(GIDS)
+      .then(data => {
+        setSheetsData(data);
+        setIsLoadingData(false);
+      })
+      .catch(err => {
+        console.error("Error loading sheets data:", err);
+        setIsLoadingData(false);
+      });
   }, []);
+
+  const getRealStats = (name: string) => {
+    if (!sheetsData) return null;
+
+    // Cari di MainData (menggunakan kolom 'NAME_3')
+    const mainRow = sheetsData.main.find(row => 
+      row.NAME_3?.toString().toLowerCase() === name.toLowerCase()
+    );
+
+    if (!mainRow) {
+      console.warn(`Data tidak ditemukan untuk: ${name}`);
+      return { name, notFound: true };
+    }
+
+
+    // Ambil data pendidikan
+    const eduRow = sheetsData.education.find(row => 
+      row.NAME_3?.toString().toLowerCase() === name.toLowerCase()
+    );
+
+    // Ambil data kuis (bisa banyak baris, ambil semua yang cocok)
+    const quizRows = sheetsData.quiz.filter(row => {
+      const sheetName = row.NAME_3?.toString().trim().toLowerCase();
+      const targetName = name.trim().toLowerCase();
+      return sheetName === targetName;
+    });
+
+    console.log(`Quiz found for ${name}:`, quizRows.length);
+
+    return {
+      name: name,
+      description: mainRow.Deskripsi || "",
+      imageUrl: mainRow.URL_Gambar || "",
+      population: mainRow.Populasi || 0,
+      density: mainRow.Kepadatan || 0,
+      area: mainRow.Luas_Wilayah || 0,
+      elevation: mainRow.Ketinggian || 0,
+      landUse: [
+        { name: 'Residential', value: mainRow.Lahan_Permukiman || 0 },
+        { name: 'Agriculture', value: mainRow.Lahan_Sawah || 0 },
+        { name: 'Forest', value: mainRow.Lahan_Hutan || 0 },
+        { name: 'Industrial', value: 0 }, 
+      ],
+      education: eduRow ? {
+        sd: eduRow.Jml_SD,
+        smp: eduRow.Jml_SMP,
+        sma: eduRow.Jml_SMA,
+        universitas: eduRow.Jml_Universitas,
+        avgSchooling: eduRow.Rerata_Lama_Sekolah
+      } : null,
+      quiz: quizRows.length > 0 ? quizRows : null,
+      isRealData: true
+    };
+
+  };
+
+
 
   const generateDummyStats = (name: string) => {
     const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
@@ -53,13 +133,15 @@ export default function Map() {
     fillOpacity: 0.1,
   });
 
-  if (!geoData) return (
+  if (!geoData || isLoadingData) return (
     <div className="flex items-center justify-center h-full min-h-[400px] bg-slate-950 rounded-2xl border border-slate-800">
-      <div className="animate-pulse text-blue-500 font-mono tracking-widest uppercase text-[10px] sm:text-xs">
-        Memuat Mesin Spasial...
+      <div className="animate-pulse text-blue-500 font-mono tracking-widest uppercase text-[10px] sm:text-xs flex flex-col items-center gap-3">
+        <span className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></span>
+        Memproses Data Spasial & Spreadsheet...
       </div>
     </div>
   );
+
 
   return (
     <div className="h-full w-full relative group">
@@ -97,10 +179,11 @@ export default function Map() {
               },
               click: () => {
                 const name = feature.properties?.NAME_3 || feature.properties?.name || "Kecamatan Tidak Diketahui";
-                const stats = generateDummyStats(name);
+                const stats = getRealStats(name);
                 setSelectedStats(stats);
                 setIsModalOpen(true);
               }
+
             });
           }}
         />
