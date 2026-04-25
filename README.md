@@ -1,4 +1,4 @@
-# GAIL — Geospatial Analytics & Intelligence Layer
+# GAIL — Geo-Atlas Interactive Learning
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.0-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.0-blue?style=for-the-badge&logo=react)](https://react.dev/)
@@ -6,13 +6,13 @@
 [![Leaflet](https://img.shields.io/badge/Leaflet-1.9-green?style=for-the-badge&logo=leaflet)](https://leafletjs.org/)
 [![QGIS](https://img.shields.io/badge/QGIS-3.x-589632?style=for-the-badge&logo=qgis)](https://qgis.org/)
 
-**GAIL** (Geospatial Analytics & Intelligence Layer) is a high-performance, premium geospatial dashboard designed for regional intelligence and statistical analysis. Focused on **Kota Malang**, GAIL integrates complex spatial geometries with dynamic live data to provide actionable insights into urban demographics, education, and land use.
+**GAIL** (Geo-Atlas Interactive Learning) is a premium, high-performance interactive atlas designed for educational exploration and regional intelligence. Focused on **Kota Malang**, GAIL transforms complex geospatial data into an engaging learning experience, allowing users to discover urban demographics, education metrics, and land-use patterns through an intuitive digital map.
 
 ---
 
 ## 🏛️ System Architecture
 
-GAIL follows a modern, decoupled architecture designed for speed and scalability. It bridges the gap between static GIS data and dynamic web-based analytics.
+GAIL follows a modern, decoupled architecture designed for speed and scalability. It bridges the gap between static GIS data and an interactive learning environment.
 
 ```mermaid
 graph TD
@@ -62,11 +62,12 @@ Berikut adalah peran krusial QGIS dalam proyek ini:
 
 ## 🚀 Key Features
 
-- **Interactive District Explorer**: Visualisasi batas wilayah (Kecamatan) di Kota Malang dengan efek hover premium.
-- **Live Google Sheets Integration**: Data statistik (Populasi, Luas Wilayah, Fasilitas Pendidikan) ditarik secara langsung dari cloud.
-- **Advanced Analytics Modal**: Menampilkan perbandingan penggunaan lahan melalui *Pie Charts* dan metrik pendidikan secara mendalam.
-- **High-Performance Map**: Menggunakan *Dark Mode basemaps* dari CartoDB untuk estetika intelijen modern.
-- **System Status Monitoring**: HUD (Heads-Up Display) yang menunjukkan status pemrosesan data secara real-time.
+- **Interactive Geo-Atlas**: Eksplorasi interaktif batas wilayah (Kecamatan) di Kota Malang dengan antarmuka yang edukatif.
+- **Dynamic Learning Data**: Integrasi statistik langsung dari Google Sheets (Populasi, Pendidikan, Lahan) untuk pembelajaran berbasis data nyata.
+- **Visual Analytics Hub**: Grafik interaktif menggunakan Recharts untuk mempermudah pemahaman distribusi data wilayah.
+- **Interactive Quiz Module**: Fitur evaluasi mandiri melalui soal-soal kuis dinamis yang disesuaikan dengan data spesifik setiap wilayah.
+- **High-Performance Map**: Menggunakan *Dark Mode basemaps* untuk fokus visual yang tajam pada data tematik.
+- **Educational Insights**: Modal analitik yang menyajikan informasi mendalam mengenai profil wilayah secara terstruktur.
 
 ---
 
@@ -87,8 +88,8 @@ Berikut adalah peran krusial QGIS dalam proyek ini:
 
 1.  **Map Initialization**: Saat aplikasi dimuat, sistem mengambil `map-data.json` dari direktori publik.
 2.  **Data Sync**: Secara paralel, sistem melakukan *multi-sheet fetching* ke Google Sheets API menggunakan Grid ID (GID) yang spesifik.
-3.  **Spatial Join (Virtual)**: Saat pengguna mengklik wilayah di peta, sistem melakukan pencarian *lookup* antara properti GeoJSON dan data Google Sheets berdasarkan nama wilayah.
-4.  **Dynamic Rendering**: Hasil pencarian dikirim ke `StatModal` untuk dirender menjadi grafik dan tabel informasi.
+3.  **Spatial Join (Virtual)**: Saat pengguna mengklik wilayah di peta, sistem melakukan pencarian *lookup* antara properti GeoJSON dan data Google Sheets (termasuk data kuis) berdasarkan nama wilayah.
+4.  **Dynamic Rendering**: Hasil pencarian dikirim ke `StatModal` untuk dirender menjadi grafik, informasi profil, dan modul kuis interaktif.
 
 ---
 
